@@ -1,2 +1,5 @@
-# cse1106-final
-1106 final project 
+# Raspberry Pi Equipment Health Monitor
+
+## Description
+
+## How to run
