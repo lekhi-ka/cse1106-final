@@ -43,10 +43,9 @@ int readStorageFile() {
 	return 1;	
 }
 
-const char* checkThreshold(double memoryUsage) {
-	const double THRESHOLD = 75.0;
+const char* checkThreshold(double memoryUsage, const double threshold) {
 	
-	if (memoryUsage > THRESHOLD) {
+	if (memoryUsage > threshold) {
 		return "WARNING";
 	}
 	
@@ -58,8 +57,7 @@ void printResourceUtilization(double memoryUsage, const char *status, const char
 	printf("%.2f%% \t\t %s \t %s \n", memoryUsage, status, warning);
 }
 
-const char* warningLED(double memoryUsage) {
-	const char *status = checkThreshold(memoryUsage);
+const char* warningLED(const char* status) {
 	
 	if (status == "HEALTHY") return "OFF";
 	
@@ -71,10 +69,18 @@ double calculateMemoryPercentageUsage(MemoryInfo *memory) {
 	return ((double) memoryUsage / memory->totalMemory) * 100.0;
 }
 
-int toggleLED(double memoryUsage) {
-	if (warningLED(memoryUsage) == "ON") return 1;
+int toggleLED(const char* warning) {
+	if (warning == "ON") return 1;
 	
 	return 0;
+}
+
+void testCase01(MemoryInfo *memory) {
+	printf("\tMemory Usage Above Threshold\t\n");
+	const double threshold = 5.0;
+	const char *status = checkThreshold(calculateMemoryPercentageUsage(memory), threshold);
+	const char *warning = warningLED(status);
+	printResourceUtilization(calculateMemoryPercentageUsage(memory), status, warning);
 }
 
 int main(int argc, char **argv)
@@ -83,10 +89,16 @@ int main(int argc, char **argv)
 	gpioSetMode(PIN, PI_OUTPUT);
 	MemoryInfo memory = { 0 };
 	readMemoryFile(&memory);
-	const char *status = checkThreshold(calculateMemoryPercentageUsage(&memory));
-	const char *warning = warningLED(calculateMemoryPercentageUsage(&memory));
+	const double threshold = 70.0;
+	const char *status = checkThreshold(calculateMemoryPercentageUsage(&memory), threshold);
+	const char *warning = warningLED(status);
 	printResourceUtilization(calculateMemoryPercentageUsage(&memory), status, warning);
-	gpioWrite(PIN, toggleLED(calculateMemoryPercentageUsage(&memory)));
+	gpioWrite(PIN, toggleLED(warning));
+	
+	
+	printf("\t Test cases \t\n\n");
+	testCase01(&memory);
 	gpioTerminate();
+	
 	return 0;
 }
