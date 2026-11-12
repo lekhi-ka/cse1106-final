@@ -95,7 +95,6 @@ int main(int argc, char **argv)
 	printResourceUtilization(calculateMemoryPercentageUsage(&memory), status, warning);
 	gpioWrite(PIN, toggleLED(warning));
 	
-	
 	printf("\t Test cases \t\n\n");
 	testCase01(&memory);
 	gpioTerminate();
